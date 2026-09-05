@@ -2,233 +2,108 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>심연의 성소 (Abyss Sanctuary)</title>
     <style>
+        /* 기본 디자인은 그대로 유지 */
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Malgun Gothic', sans-serif;
-            background-color: #0d0d0f;
-            color: #d1d1d6;
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* 1. 상단 자원 표시 바 */
-        #resource-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 50px;
-            background-color: #16161a;
-            border-bottom: 2px solid #2a0808;
-            display: flex;
-            align-items: center;
-            padding: 0 20px;
-            font-size: 15px;
-            font-weight: bold;
-            z-index: 10;
-        }
-        .res-item { margin-right: 25px; }
-        .res-value { color: #ff4d4d; text-shadow: 0 0 5px rgba(255, 77, 77, 0.4); }
-
-        /* 전체 레이아웃 (상단바 아래) */
-        #container {
-            display: flex;
-            width: 100%;
-            height: calc(100vh - 50px);
-            margin-top: 50px;
-        }
-
-        /* 2. 좌측 메뉴 사이드바 */
-        #sidebar {
-            width: 220px;
-            background-color: #121214;
-            border-right: 1px solid #222;
-            display: flex;
-            flex-direction: column;
-            padding: 15px 10px;
-        }
-        .menu-title {
-            font-size: 12px;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin: 10px 0 5px 10px;
-        }
-        .tab-btn {
-            background: none;
-            border: 1px solid transparent;
-            color: #999;
-            padding: 12px 15px;
-            font-size: 14px;
-            text-align: left;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-bottom: 5px;
-            transition: 0.2s;
-        }
-        .tab-btn:hover {
-            background-color: #1f1414;
-            color: #ff6b6b;
-        }
-        .tab-btn.active {
-            background-color: #2a0b0b;
-            color: #ff4d4d;
-            border-color: #5c1818;
-            font-weight: bold;
-        }
-
-        /* 3. 우측 메인 콘텐츠 영역 */
-        #main-content {
-            flex: 1;
-            padding: 30px;
-            overflow-y: auto;
-            background-color: #0d0d0f;
-        }
+        body { font-family: 'Malgun Gothic', sans-serif; background-color: #0d0d0f; color: #d1d1d6; display: flex; height: 100vh; }
+        #sidebar { width: 220px; background-color: #121214; padding: 15px; border-right: 1px solid #222; }
+        .tab-btn { background: none; border: none; color: #999; padding: 10px; width: 100%; text-align: left; cursor: pointer; margin-bottom: 5px; }
+        .tab-btn:hover, .tab-btn.active { background-color: #2a0b0b; color: #ff4d4d; }
+        #main-content { flex: 1; padding: 30px; overflow-y: auto; }
         .tab-page { display: none; }
         .tab-page.active { display: block; }
-
-        .section-header {
-            font-size: 20px;
-            margin-bottom: 20px;
-            color: #f5f5f7;
-            border-bottom: 1px solid #26262b;
-            padding-bottom: 10px;
-        }
-
-        /* 임무 카드 그리드 */
-        .mission-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 15px;
-        }
-        .card {
-            background-color: #16161a;
-            border: 1px solid #2a2a30;
-            border-radius: 8px;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        .card:hover { border-color: #4a1515; }
-        .card-title { font-size: 16px; font-weight: bold; color: #ff8080; margin-bottom: 8px; }
-        .card-desc { font-size: 13px; color: #8a8a93; margin-bottom: 15px; line-height: 1.4; }
-        
-        .action-btn {
-            background-color: #240b0b;
-            border: 1px solid #ff4d4d;
-            color: #ff9999;
-            padding: 8px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.2s;
-        }
-        .action-btn:hover { background-color: #4a1111; color: #fff; }
+        .action-btn { background-color: #240b0b; border: 1px solid #ff4d4d; color: #ff9999; padding: 10px 15px; cursor: pointer; font-weight: bold; }
+        .log-box { background-color: #111; border: 1px solid #333; padding: 15px; height: 200px; overflow-y: auto; margin-top: 20px; font-size: 13px; color: #aaa; }
+        .highlight { color: #ffeb3b; font-weight: bold; }
+        .epic { color: #ff1744; font-weight: bold; text-shadow: 0 0 5px red; }
     </style>
 </head>
 <body>
-
-    <div id="resource-bar">
-        <div class="res-item">영혼: <span id="souls" class="res-value">0</span></div>
-        <div class="res-item">심연의 파편: <span id="shards" class="res-value">0</span></div>
+    <div id="sidebar">
+        <button class="tab-btn active" onclick="switchTab('battle')">⚔️ 보스 토벌</button>
+        <button class="tab-btn" onclick="switchTab('inventory')">🎒 인벤토리</button>
     </div>
 
-    <div id="container">
-        <div id="sidebar">
-            <div class="menu-title">주요 활동</div>
-            <button class="tab-btn active" onclick="switchTab('missions')">⚔️ 어둠의 임무</button>
-            <button class="tab-btn" onclick="switchTab('harvest')">🩸 영혼 수확</button>
+    <div id="main-content">
+        <!-- 토벌 탭 -->
+        <div id="tab-battle" class="tab-page active">
+            <h2>심연의 보스 토벌</h2>
+            <p>버튼을 누를 때마다 보스를 처치하고 정해진 확률(0.01% ~ 50%)로 전리품을 얻습니다.</p><br>
+            <button class="action-btn" onclick="killBoss()">보스 1회 처치</button>
+            <button class="action-btn" onclick="autoFarm(100)">보스 100회 연속 처치 (자동)</button>
             
-            <div class="menu-title">관리</div>
-            <button class="tab-btn" onclick="switchTab('research')">📜 흑마법 연구</button>
-            <button class="tab-btn" onclick="switchTab('settings')">⚙️ 설정</button>
+            <div id="battle-log" class="log-box"></div>
         </div>
 
-        <div id="main-content">
-            <div id="tab-missions" class="tab-page active">
-                <div class="section-header">원정 및 임무</div>
-                <div class="mission-grid">
-                    <div class="card">
-                        <div>
-                            <div class="card-title">버려진 공동묘지 수색</div>
-                            <div class="card-desc">떠도는 원혼들을 정화하고 미약한 영혼을 긁어모읍니다. (완료 시 영혼 +10)</div>
-                        </div>
-                        <button class="action-btn" onclick="runMission(10)">수색 시작</button>
-                    </div>
-
-                    <div class="card">
-                        <div>
-                            <div class="card-title">타락한 이교도 토벌</div>
-                            <div class="card-desc">의식을 치르는 이교도들을 처치하고 심연의 파편을 강탈합니다.</div>
-                        </div>
-                        <button class="action-btn" onclick="alert('전투 시스템 준비 중')">토벌 시작</button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="tab-harvest" class="tab-page">
-                <div class="section-header">영혼의 제단</div>
-                <p style="margin-bottom: 15px;">제단에 손을 얹어 직접 영혼을 뽑아냅니다.</p>
-                <button class="action-btn" onclick="addSoul(1)">직접 영혼 추출 (+1)</button>
-            </div>
-
-            <div id="tab-research" class="tab-page">
-                <div class="section-header">흑마법 연구</div>
-                <p>영혼 수확 효율을 올릴 연구 목록이 들어올 예정입니다.</p>
-            </div>
-
-            <div id="tab-settings" class="tab-page">
-                <div class="section-header">게임 설정</div>
-                <button class="action-btn" onclick="resetData()">데이터 초기화</button>
-            </div>
+        <!-- 인벤토리 탭 -->
+        <div id="tab-inventory" class="tab-page">
+            <h2>내 가방</h2>
+            <div id="inv-list" class="log-box">아직 얻은 아이템이 없습니다.</div>
         </div>
     </div>
+
+    <!-- 🌟 여기서 아까 만든 아이템 창고 파일을 불러옵니다! -->
+    <script src="items.js"></script>
 
     <script>
-        let souls = 0;
-        let shards = 0;
-
-        // 탭 전환 기능
         function switchTab(tabId) {
-            // 모든 탭 버튼 비활성화
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            // 모든 탭 페이지 숨기기
             document.querySelectorAll('.tab-page').forEach(page => page.classList.remove('active'));
-
-            // 선택된 탭 활성화
-            event.currentTarget.classList.add('active');
             document.getElementById('tab-' + tabId).classList.add('active');
+            if(tabId === 'inventory') renderInventory();
         }
 
-        // 수확 액션
-        function addSoul(amount) {
-            souls += amount;
-            updateUI();
+        function logMessage(msg) {
+            const logBox = document.getElementById('battle-log');
+            logBox.innerHTML = msg + "<br>" + logBox.innerHTML;
         }
 
-        // 임무 액션
-        function runMission(rewardSouls) {
-            souls += rewardSouls;
-            updateUI();
+        // 몬스터 처치 시 전리품 굴리기 로직
+        function killBoss() {
+            let dropFound = false;
+
+            // itemDB(수천 개의 아이템 목록)를 하나씩 돌면서 확률 계산
+            itemDB.forEach(item => {
+                const roll = Math.random(); // 0.000000 ~ 0.999999 사이의 랜덤 숫자 뽑기
+                
+                if (roll <= item.dropRate) {
+                    // 당첨! 인벤토리에 아이템 추가
+                    inventory[item.id] = (inventory[item.id] || 0) + 1;
+                    dropFound = true;
+                    
+                    if(item.dropRate <= 0.001) {
+                        logMessage(`<span class="epic">🔥 미쳤습니다!! 극악의 확률을 뚫고 [${item.name}] 획득!! (확률: ${item.dropRate * 100}%)</span>`);
+                    } else {
+                        logMessage(`<span class="highlight">[${item.name}]</span> 획득.`);
+                    }
+                }
+            });
+
+            if (!dropFound) logMessage("보스를 처치했지만 아무것도 얻지 못했습니다...");
         }
 
-        // 화면 수치 갱신
-        function updateUI() {
-            document.getElementById('souls').innerText = souls;
-            document.getElementById('shards').innerText = shards;
-        }
-
-        function resetData() {
-            if(confirm("정말 모든 진행도를 초기화하시겠습니까?")) {
-                souls = 0;
-                shards = 0;
-                updateUI();
+        // 극악 확률 테스트용 연속 처치
+        function autoFarm(times) {
+            logMessage(`--- 보스 ${times}회 연속 토벌 시작 ---`);
+            for(let i=0; i<times; i++) {
+                killBoss();
             }
+        }
+
+        // 인벤토리 화면 업데이트
+        function renderInventory() {
+            const invList = document.getElementById('inv-list');
+            invList.innerHTML = "";
+            let isEmpty = true;
+
+            for (const itemId in inventory) {
+                const itemData = itemDB.find(i => i.id === itemId);
+                const count = inventory[itemId];
+                invList.innerHTML += `<p><strong style="color:#ff8080;">${itemData.name}</strong> x ${count} <br> <span style="font-size:11px; color:#777;">${itemData.desc}</span></p><hr style="border:0.5px solid #333; margin: 10px 0;">`;
+                isEmpty = false;
+            }
+
+            if (isEmpty) invList.innerHTML = "가방이 비어있습니다.";
         }
     </script>
 </body>
