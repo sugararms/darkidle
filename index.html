@@ -208,7 +208,7 @@
         </div>
     </div>
 
-    <script>
+   <script>
         /* =========================================================================
            [1] 마스터 데이터베이스 (완전판)
            ========================================================================= */
@@ -216,8 +216,8 @@
             version: "1.3",
             resources: { soul: 0, blood: 0, madness: 0, ash: 0, memory: 0, abyssEye: 0 },
             hero: { level: 1, baseHp: 100, baseAtk: 10, baseDef: 5, baseSpeed: 100, baseCritRate: 5, baseCritDmg: 150, basePenetration: 0, baseEvasion: 0 },
-            materials: { woodRotten: 0, woodDarkSap: 0 }, // 벌목장 재료
-            facilities: { lumberjacks: 0 }, // 시설(하수인)
+            materials: { woodRotten: 0, woodDarkSap: 0 }, 
+            facilities: { lumberjacks: 0 }, 
             equipment: {}, companions: {}, relics: {},
             lastSaveTime: Date.now()
         };
@@ -225,32 +225,25 @@
         let player = JSON.parse(JSON.stringify(DEFAULT_DATA));
 
         /* =========================================================================
-           [2] 스탯 시너지 계산기 엔진 (광기와 재의 상호작용 포함)
+           [2] 스탯 시너지 계산기 엔진
            ========================================================================= */
         const StatCalc = {
             getHP: function() { 
-                // 광기 패널티: 1당 0.5%씩 체력 감소 (최대 100일 때 50% 감소)
                 let multiplier = 1 - (player.resources.madness * 0.005);
                 return Math.floor(player.hero.baseHp * multiplier); 
             },
             getATK: function() { 
-                // 광기 버프: 1당 1%씩 공격력 증가 (100일 때 2배)
-                // 재 버프: 재 1개당 공격력 5% 영구 증가
                 let madnessBuff = 1 + (player.resources.madness * 0.01);
                 let ashBuff = 1 + (player.resources.ash * 0.05);
                 return Math.floor(player.hero.baseAtk * madnessBuff * ashBuff); 
             },
             getDEF: function() { return Math.floor(player.hero.baseDef); },
-            getSPD: function() { return player.hero.baseSpeed + (player.resources.ash * 1); }, // 재 1개당 속도 +1 영구 증가
+            getSPD: function() { return player.hero.baseSpeed + (player.resources.ash * 1); }, 
             getPEN: function() { return player.hero.basePenetration; },
-            getEVA: function() { 
-                // 광기가 50 이상이면 공포로 인해 회피율 0 고정
-                return player.resources.madness >= 50 ? 0 : player.hero.baseEvasion; 
-            },
+            getEVA: function() { return player.resources.madness >= 50 ? 0 : player.hero.baseEvasion; },
             getLevelUpCost: function() { return Math.floor(10 * Math.pow(1.15, player.hero.level - 1)); },
             getLumberCost: function() { return Math.floor(10 * Math.pow(1.5, player.facilities.lumberjacks)); },
             getPendingAsh: function() {
-                // 환생 시 얻을 재 계산식 (레벨 5당 1개 + 모은 영혼 1000당 1개)
                 let fromLevel = Math.floor(player.hero.level / 5);
                 let fromSoul = Math.floor(player.resources.soul / 1000);
                 return fromLevel + fromSoul;
@@ -261,7 +254,6 @@
            [3] 플레이어 액션 컨트롤러
            ========================================================================= */
         const Action = {
-            // 성채 액션
             harvestSoul: function() { player.resources.soul += 1; UI.updateAll(); },
             levelUp: function() {
                 const cost = StatCalc.getLevelUpCost();
@@ -271,8 +263,6 @@
                     UI.updateAll();
                 } else alert("영혼이 부족합니다.");
             },
-            
-            // 벌목 액션
             hireLumberjack: function() {
                 const cost = StatCalc.getLumberCost();
                 if (player.resources.soul >= cost) {
@@ -281,8 +271,6 @@
                     UI.updateAll();
                 } else alert("영혼이 부족합니다.");
             },
-
-            // 광기 액션 (기믹 테스트용)
             addMadness: function(amount) {
                 player.resources.madness = Math.min(100, player.resources.madness + amount);
                 UI.updateAll();
@@ -294,21 +282,17 @@
                     UI.updateAll();
                 } else alert("정화에 필요한 영혼(100)이 부족합니다.");
             },
-
-            // 의식 (환생) 액션
             performRitual: function() {
                 let pendingAsh = StatCalc.getPendingAsh();
                 if(pendingAsh <= 0) {
                     alert("아직 의식을 치르기엔 이룹니다. (최소 레벨 5 필요)"); return;
                 }
                 if(confirm(`모든 것을 불태우고 ${pendingAsh}개의 재를 얻으시겠습니까?`)) {
-                    // 보존할 데이터 백업
                     let savedAsh = player.resources.ash + pendingAsh;
                     let savedEye = player.resources.abyssEye;
                     let savedMemory = player.resources.memory;
                     let savedRelics = player.relics;
                     
-                    // 장부 완전 초기화 후 백업 데이터 복구
                     player = JSON.parse(JSON.stringify(DEFAULT_DATA));
                     player.resources.ash = savedAsh;
                     player.resources.abyssEye = savedEye;
@@ -335,14 +319,10 @@
             },
             wipeData: function() { if(confirm("완전 삭제하시겠습니까?")) { localStorage.removeItem("blacksoulsIdleSave"); location.reload(); } },
             tick: function() {
-                // 벌목장 자동 생산 로직 (1초마다 하수인 수만큼 목재 획득)
                 if(player.facilities.lumberjacks > 0) {
                     player.materials.woodRotten += player.facilities.lumberjacks;
-                    
-                    // 5% 확률로 고급 재료(검은 수액) 발견
                     if(Math.random() < 0.05) player.materials.woodDarkSap += 1; 
-                    
-                    UI.updateTabLumber(); // 화면 갱신
+                    UI.updateTabLumber(); 
                 }
                 Engine.save();
             }
@@ -386,26 +366,30 @@
             updateAll: function() {
                 this.updateHUD(); this.updateTabCitadel(); this.updateTabLumber(); this.updateTabMadness(); this.updateTabRitual();
             },
-            
-            // 🚨 바로 이 부분이 고장났던 범인입니다! 에러 나지 않게 완벽 수정 완료
             switchTab: function(tabId) {
-                // 1. 모든 탭 화면 끄기
+                // 기존 활성화 상태 초기화
                 document.querySelectorAll('.tab-page').forEach(page => page.classList.remove('active'));
-                // 2. 모든 버튼 불 끄기
                 document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
                 
-                // 3. 선택한 탭 화면 켜기
+                // 선택한 탭 열기
                 document.getElementById('tab-' + tabId).classList.add('active');
                 
-                // 4. 선택한 탭 버튼에 불 켜기 (안전한 방식으로 변경)
+                // 안전한 방식으로 좌측 메뉴 버튼에 빨간불 들어오게 만들기
                 document.querySelectorAll('.tab-btn').forEach(btn => {
-                    if(btn.getAttribute('onclick').includes(tabId)) {
+                    if(btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(tabId)) {
                         btn.classList.add('active');
                     }
                 });
                 
                 this.updateAll();
             }
+        };
+
+        // 🚨 이 줄이 실수로 빠졌던 범인입니다! HTML 버튼들과 자바스크립트를 연결해줍니다.
+        function switchTab(tabId) { UI.switchTab(tabId); }
+
+        window.onload = function() {
+            Engine.load(); UI.updateAll(); setInterval(function() { Engine.tick(); }, 1000);
         };
     </script>
 </body>
