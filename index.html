@@ -386,17 +386,26 @@
             updateAll: function() {
                 this.updateHUD(); this.updateTabCitadel(); this.updateTabLumber(); this.updateTabMadness(); this.updateTabRitual();
             },
+            
+            // 🚨 바로 이 부분이 고장났던 범인입니다! 에러 나지 않게 완벽 수정 완료
             switchTab: function(tabId) {
+                // 1. 모든 탭 화면 끄기
                 document.querySelectorAll('.tab-page').forEach(page => page.classList.remove('active'));
+                // 2. 모든 버튼 불 끄기
                 document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                
+                // 3. 선택한 탭 화면 켜기
                 document.getElementById('tab-' + tabId).classList.add('active');
-                event.currentTarget.classList.add('active');
+                
+                // 4. 선택한 탭 버튼에 불 켜기 (안전한 방식으로 변경)
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    if(btn.getAttribute('onclick').includes(tabId)) {
+                        btn.classList.add('active');
+                    }
+                });
+                
                 this.updateAll();
             }
-        };
-
-        window.onload = function() {
-            Engine.load(); UI.updateAll(); setInterval(function() { Engine.tick(); }, 1000);
         };
     </script>
 </body>
