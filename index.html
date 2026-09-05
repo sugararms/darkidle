@@ -5,214 +5,215 @@
     <title>심연의 성소 (Abyss Sanctuary)</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Malgun Gothic', sans-serif; background-color: #0d0d0f; color: #d1d1d6; display: flex; height: 100vh; }
+        body { font-family: 'Malgun Gothic', sans-serif; background-color: #050505; color: #c8c8d0; display: flex; height: 100vh; overflow: hidden; }
         
-        /* 좌측 사이드바 디자인 */
-        #sidebar { width: 220px; background-color: #121214; padding: 15px 10px; border-right: 1px solid #222; overflow-y: auto; }
-        .menu-title { font-size: 11px; color: #555; text-transform: uppercase; margin: 15px 0 5px 10px; font-weight: bold; }
-        .tab-btn { background: none; border: none; color: #999; padding: 10px 15px; width: 100%; text-align: left; cursor: pointer; border-radius: 5px; margin-bottom: 2px; }
-        .tab-btn:hover { background-color: #1f1414; color: #ff6b6b; }
-        .tab-btn.active { background-color: #2a0b0b; color: #ff4d4d; font-weight: bold; }
+        /* 스크롤바 커스텀 (다크 감성) */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
         
-        /* 메인 콘텐츠 및 탭 디자인 */
+        /* 좌측 12개 메뉴 사이드바 */
+        #sidebar { width: 220px; background-color: #0a0a0c; padding: 15px 10px; border-right: 1px solid #1a1a20; overflow-y: auto; }
+        .menu-category { font-size: 11px; color: #555; text-transform: uppercase; margin: 15px 0 5px 10px; font-weight: bold; letter-spacing: 1px; }
+        .tab-btn { background: none; border: none; color: #888; padding: 10px 15px; width: 100%; text-align: left; cursor: pointer; border-radius: 4px; margin-bottom: 2px; transition: 0.2s; }
+        .tab-btn:hover { background-color: #161212; color: #ff5555; }
+        .tab-btn.active { background-color: #240b0b; color: #ff3333; border-left: 3px solid #ff3333; font-weight: bold; }
+        
+        /* 상단 6대 재화 HUD */
+        .top-hud { background: #0a0a0c; border-bottom: 1px solid #1a1a20; padding: 15px 25px; display: flex; gap: 25px; flex-wrap: wrap; box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 10; }
+        .res-box { display: flex; flex-direction: column; }
+        .res-name { font-size: 10px; color: #666; margin-bottom: 3px; }
+        .res-value { font-size: 16px; font-weight: bold; }
+        
+        /* 개별 재화 컬러 */
+        .c-soul { color: #8bb8d6; text-shadow: 0 0 5px rgba(139, 184, 214, 0.4); }
+        .c-blood { color: #ff2a2a; text-shadow: 0 0 5px rgba(255, 42, 42, 0.4); }
+        .c-madness { color: #b742ff; text-shadow: 0 0 5px rgba(183, 66, 255, 0.4); }
+        .c-ash { color: #aaaaaa; }
+        .c-memory { color: #ffd700; }
+        .c-eye { color: #00ffcc; }
+
+        /* 메인 콘텐츠 영역 */
+        #main-container { flex: 1; display: flex; flex-direction: column; background: radial-gradient(circle at center, #111 0%, #050505 100%); }
         #main-content { flex: 1; padding: 30px; overflow-y: auto; }
-        .tab-page { display: none; }
+        .tab-page { display: none; animation: fadeIn 0.3s ease; }
         .tab-page.active { display: block; }
-        
-        /* 버튼 및 상자 디자인 */
-        .action-btn { background-color: #240b0b; border: 1px solid #ff4d4d; color: #ff9999; padding: 10px 15px; cursor: pointer; font-weight: bold; border-radius: 4px; margin-right: 5px; }
-        .action-btn:hover { background-color: #4a1111; color: #fff; }
-        .log-box { background-color: #111; border: 1px solid #333; padding: 15px; height: 250px; overflow-y: auto; margin-top: 20px; font-size: 13px; color: #aaa; border-radius: 4px; }
-        
-        /* 텍스트 효과 */
-        .highlight { color: #ffeb3b; font-weight: bold; }
-        .epic { color: #ff1744; font-weight: bold; text-shadow: 0 0 5px red; }
-        .top-bar { padding: 15px 30px; background: #16161a; border-bottom: 2px solid #2a0808; font-weight: bold; font-size: 16px; display: flex; align-items: center; }
-        .res-value { color: #ff4d4d; text-shadow: 0 0 5px rgba(255, 77, 77, 0.4); margin: 0 20px 0 5px; font-size: 20px; }
-        .box { border: 1px solid #2a2a30; background-color: #16161a; padding: 20px; border-radius: 8px; margin-bottom: 15px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 공통 UI 요소 */
+        h2 { border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 20px; font-size: 22px; color: #eee; }
+        .desc { color: #777; font-size: 13px; margin-bottom: 20px; line-height: 1.5; }
+        .panel { background: rgba(20, 20, 25, 0.8); border: 1px solid #222; padding: 20px; border-radius: 6px; margin-bottom: 15px; }
+        .btn { background-color: #1a1a20; border: 1px solid #333; color: #ccc; padding: 10px 20px; cursor: pointer; font-weight: bold; border-radius: 4px; transition: 0.2s; }
+        .btn:hover { background-color: #2a2a35; border-color: #555; color: #fff; }
+        .btn-blood { border-color: #551111; color: #ff5555; }
+        .btn-blood:hover { background-color: #330b0b; border-color: #ff2a2a; }
     </style>
 </head>
 <body>
+    <!-- 12개 메인 메뉴 -->
     <div id="sidebar">
-        <div class="menu-title">주요 활동</div>
-        <button class="tab-btn active" onclick="switchTab('battle')">⚔️ 보스 토벌</button>
-        <button class="tab-btn" onclick="switchTab('harvest')">🩸 영혼 수확</button>
-        <button class="tab-btn" onclick="switchTab('inventory')">🎒 인벤토리</button>
+        <div class="menu-category">행동 (Action)</div>
+        <button class="tab-btn active" onclick="switchTab('combat')">⚔️ 전투</button>
+        <button class="tab-btn" onclick="switchTab('lumber')">🌲 벌목</button>
+        <button class="tab-btn" onclick="switchTab('mining')">⛏️ 채광</button>
         
-        <div class="menu-title">확장 콘텐츠 (예정)</div>
-        <button class="tab-btn" onclick="switchTab('research')">📜 흑마법 연구</button>
-        <button class="tab-btn" onclick="switchTab('forge')">⚒️ 심연의 대장간</button>
-        <button class="tab-btn" onclick="switchTab('relics')">🏺 유물 제단</button>
-        <button class="tab-btn" onclick="switchTab('pact')">📜 악마의 계약</button>
-        <button class="tab-btn" onclick="switchTab('arena')">🏟️ 환영 투기장</button>
-        <button class="tab-btn" onclick="switchTab('gate')">🚪 지옥문 탐색</button>
-        <button class="tab-btn" onclick="switchTab('fusion')">🔮 영혼 융합소</button>
-        <button class="tab-btn" onclick="switchTab('shop')">💰 어둠의 상점</button>
-        <button class="tab-btn" onclick="switchTab('ritual')">🩸 피의 의식</button>
-        <button class="tab-btn" onclick="switchTab('ruins')">🏛️ 고대 유적</button>
+        <div class="menu-category">성장 (Growth)</div>
+        <button class="tab-btn" onclick="switchTab('citadel')">🏰 성채 (기지)</button>
+        <button class="tab-btn" onclick="switchTab('equip')">🗡️ 장비</button>
+        <button class="tab-btn" onclick="switchTab('companion')">👥 동료</button>
+        <button class="tab-btn" onclick="switchTab('relic')">🏺 유물</button>
 
-        <div class="menu-title">시스템</div>
-        <button class="tab-btn" onclick="resetData()" style="color: #777;">⚙️ 데이터 초기화</button>
+        <div class="menu-category">심연 (Abyss)</div>
+        <button class="tab-btn" onclick="switchTab('madness')">👁️ 광기</button>
+        <button class="tab-btn" onclick="switchTab('ritual')">🩸 의식 (환생)</button>
+
+        <div class="menu-category">기록 (Records)</div>
+        <button class="tab-btn" onclick="switchTab('memory')">📜 기억 (스토리)</button>
+        <button class="tab-btn" onclick="switchTab('codex')">📖 도감</button>
+        <button class="tab-btn" onclick="switchTab('settings')" style="margin-top: 30px; color:#555;">⚙️ 설정</button>
     </div>
 
-    <div style="flex: 1; display: flex; flex-direction: column;">
-        <div class="top-bar">
-            영혼: <span id="souls" class="res-value">0</span>
-            심연의 파편: <span id="shards" class="res-value">0</span>
+    <div id="main-container">
+        <!-- 6대 핵심 재화 HUD -->
+        <div class="top-hud">
+            <div class="res-box"><span class="res-name">영혼 (Soul)</span><span id="res-soul" class="res-value c-soul">0</span></div>
+            <div class="res-box"><span class="res-name">핏빛 (Scarlet Blood)</span><span id="res-blood" class="res-value c-blood">0</span></div>
+            <div class="res-box"><span class="res-name">광기 (Madness)</span><span id="res-madness" class="res-value c-madness">0 / 100</span></div>
+            <div class="res-box"><span class="res-name">재 (Ash)</span><span id="res-ash" class="res-value c-ash">0</span></div>
+            <div class="res-box"><span class="res-name">기억의 조각</span><span id="res-memory" class="res-value c-memory">0</span></div>
+            <div class="res-box"><span class="res-name">심연의 눈</span><span id="res-eye" class="res-value c-eye">0</span></div>
         </div>
 
         <div id="main-content">
-            <!-- 탭 1: 보스 토벌 -->
-            <div id="tab-battle" class="tab-page active">
-                <h2>심연의 보스 토벌</h2>
-                <p style="margin: 10px 0; color: #888;">보스를 처치하여 정해진 확률로 유물과 전리품을 파밍합니다. (영혼 획득 불가)</p>
-                <button class="action-btn" onclick="killBoss()">보스 1회 처치</button>
-                <button class="action-btn" onclick="autoFarm(100)">보스 100회 연속 처치 (테스트)</button>
-                <div id="battle-log" class="log-box"></div>
-            </div>
-
-            <!-- 탭 2: 영혼 수확 (신규) -->
-            <div id="tab-harvest" class="tab-page">
-                <h2>영혼 수확</h2>
-                <p style="margin: 10px 0; color: #888;">제단에서 직접 영혼을 뽑아내거나, 하수인을 고용해 자동화할 수 있습니다.</p>
-                
-                <div class="box">
-                    <button class="action-btn" onclick="harvestSoul()" style="padding: 15px 30px; font-size: 16px;">직접 영혼 수확 (+1)</button>
-                </div>
-
-                <div class="box">
-                    <h3 style="margin-bottom: 10px; color: #f5f5f7;">해골 하수인</h3>
-                    <p style="margin-bottom: 15px; color: #888;">초당 1개의 영혼을 자동으로 수집합니다.</p>
-                    <p>현재 보유: <strong id="skeleton-count" style="color: #ff8080;">0</strong>명</p>
-                    <br>
-                    <button class="action-btn" onclick="buySkeleton()">하수인 고용 (비용: <span id="skeleton-cost">10</span> 영혼)</button>
+            <!-- 탭: 전투 -->
+            <div id="tab-combat" class="tab-page active">
+                <h2>전투: 폐허 마을 (Lv.1)</h2>
+                <p class="desc">자동으로 망령과 들개를 사냥합니다. 희귀 확률로 재앙급 개체가 출현합니다.</p>
+                <div class="panel" id="combat-log" style="height: 300px; overflow-y: auto; font-family: monospace; color: #888;">
+                    [시스템] 전투 시스템을 활성화합니다...
                 </div>
             </div>
 
-            <!-- 탭 3: 인벤토리 -->
-            <div id="tab-inventory" class="tab-page">
-                <h2>내 가방</h2>
-                <div id="inv-list" class="log-box">아직 얻은 아이템이 없습니다.</div>
+            <!-- 탭: 벌목 -->
+            <div id="tab-lumber" class="tab-page">
+                <h2>벌목 (Logging)</h2>
+                <p class="desc">망령 벌목꾼을 고용하여 썩은 목재와 검은 수액을 수집합니다.</p>
+                <div class="panel">
+                    <p>현재 망령 벌목꾼: <strong style="color:white;">0</strong>명</p><br>
+                    <button class="btn">도끼 강화 (채집속도 UP)</button>
+                    <button class="btn btn-blood">저주 도끼 부여 (희귀확률 UP)</button>
+                </div>
             </div>
 
-            <!-- 미구현 빈 탭들 (에러 방지용으로 비워둠) -->
-            <div id="tab-research" class="tab-page"><h2>흑마법 연구</h2><p>업데이트 예정입니다.</p></div>
-            <div id="tab-forge" class="tab-page"><h2>심연의 대장간</h2><p>업데이트 예정입니다.</p></div>
-            <div id="tab-relics" class="tab-page"><h2>유물 제단</h2><p>업데이트 예정입니다.</p></div>
-            <div id="tab-pact" class="tab-page"><h2>악마의 계약</h2><p>업데이트 예정입니다.</p></div>
-            <div id="tab-arena" class="tab-page"><h2>환영 투기장</h2><p>업데이트 예정입니다.</p></div>
-            <div id="tab-gate" class="tab-page"><h2>지옥문 탐색</h2><p>업데이트 예정입니다.</p></div>
-            <div id="tab-fusion" class="tab-page"><h2>영혼 융합소</h2><p>업데이트 예정입니다.</p></div>
-            <div id="tab-shop" class="tab-page"><h2>어둠의 상점</h2><p>업데이트 예정입니다.</p></div>
-            <div id="tab-ritual" class="tab-page"><h2>피의 의식</h2><p>업데이트 예정입니다.</p></div>
-            <div id="tab-ruins" class="tab-page"><h2>고대 유적</h2><p>업데이트 예정입니다.</p></div>
+            <!-- 미구현 탭들 (틀만 잡아둠) -->
+            <div id="tab-mining" class="tab-page"><h2>채광</h2><p class="desc">심연석과 흑철을 채굴합니다.</p></div>
+            <div id="tab-citadel" class="tab-page"><h2>성채</h2><p class="desc">화톳불, 대장간, 도서관 등의 시설을 업그레이드합니다.</p></div>
+            <div id="tab-equip" class="tab-page"><h2>장비</h2><p class="desc">저주받은 옵션이 붙은 장비를 세팅합니다.</p></div>
+            <div id="tab-companion" class="tab-page"><h2>동료</h2><p class="desc">재앙 등급의 동료를 영입하고 타락 루트를 관리합니다.</p></div>
+            <div id="tab-relic" class="tab-page"><h2>유물</h2><p class="desc">영구적인 성장을 제공하는 성유물을 전시합니다.</p></div>
+            <div id="tab-madness" class="tab-page"><h2>광기</h2><p class="desc">광기 게이지가 오를수록 세계가 왜곡되지만 보상이 증가합니다.</p></div>
+            <div id="tab-ritual" class="tab-page"><h2>피의 의식</h2><p class="desc">모든 것을 제단에 바치고 '재(Ash)'를 얻어 영구적인 힘을 각성합니다.</p></div>
+            <div id="tab-memory" class="tab-page"><h2>기억</h2><p class="desc">이 부서진 세계의 조각난 진실들을 확인합니다.</p></div>
+            <div id="tab-codex" class="tab-page"><h2>도감</h2><p class="desc">발견한 몬스터와 유물을 기록합니다.</p></div>
+            
+            <div id="tab-settings" class="tab-page">
+                <h2>시스템 설정</h2>
+                <button class="btn btn-blood" onclick="Engine.wipeData()">데이터 완전 초기화</button>
+            </div>
         </div>
     </div>
 
-    <!-- 아이템 창고 불러오기 -->
-    <script src="items.js"></script>
-
-    <!-- 게임 시스템 뼈대 -->
+    <!-- 스크립트 연결 (items.js는 나중에 분리/확장 예정) -->
     <script>
-        // 1. 초기 데이터 구조 (minions 추가)
+        /* =========================================================================
+           [1] 마스터 데이터 구조 (기획서 기반 완벽 확장)
+           ========================================================================= */
         const DEFAULT_DATA = {
-            version: "0.2",
-            resources: { souls: 0, shards: 0 },
-            minions: { skeletons: 0 }, // 하수인 데이터 독립 배치
-            stats: { totalKills: 0 },
-            inventory: {},
+            version: "1.0",
+            // 1. 6대 핵심 재화
+            resources: {
+                soul: 0,
+                blood: 0,
+                madness: 0,
+                ash: 0,
+                memory: 0,
+                abyssEye: 0
+            },
+            // 2. 생산/채집 자원
+            materials: {
+                woodRotten: 0, woodDarkSap: 0, woodCursedBranch: 0, woodElderHeart: 0,
+                oreIron: 0, oreDarkIron: 0, oreAbyssStone: 0, oreStarMineral: 0,
+                herbPoisonMushroom: 0, herbBloodFlower: 0, herbMoonLily: 0, herbCorpseFlower: 0
+            },
+            // 3. 시설 및 자동화 레벨
+            facilities: {
+                lumberjacks: 0, lumberAxeLevel: 1, lumberCursedAxeLevel: 0,
+                miners: 0, miningPickLevel: 1,
+                gatherers: 0,
+                bonfireLevel: 1 // 성채 화톳불
+            },
+            // 4. 전투 및 통계
+            combat: {
+                currentRegion: 1, // 1: 폐허마을, 2: 피의성당, 3: 심연성
+                totalKills: 0,
+                bossFails: 0 // 보스 출현 누적 확률(천장)을 위한 변수
+            },
+            // 5. 장비, 동료, 유물 장부
+            equipment: { weapon: null, subWeapon: null, helm: null, armor: null, ring: null, necklace: null, relic: null },
+            companions: {}, // 영입한 동료 데이터
+            relics: {}, // 해금된 영구 유물
+            
             lastSaveTime: Date.now()
         };
 
         let player = JSON.parse(JSON.stringify(DEFAULT_DATA));
 
-        // 2. 메인 엔진
+        /* =========================================================================
+           [2] 게임 코어 엔진
+           ========================================================================= */
         const Engine = {
             save: function() {
                 player.lastSaveTime = Date.now();
-                localStorage.setItem("darkIdleSave", JSON.stringify(player)); 
+                localStorage.setItem("blacksoulsIdleSave", JSON.stringify(player)); 
             },
             load: function() {
-                const savedData = localStorage.getItem("darkIdleSave");
+                const savedData = localStorage.getItem("blacksoulsIdleSave");
                 if (savedData) {
                     const parsed = JSON.parse(savedData);
-                    // 새 버전 업데이트 시 데이터가 꼬이지 않게 깊은 병합(Deep Merge)
+                    // 🚨 다중 뎁스(Depth) 병합: 객체 안의 객체까지 꼬이지 않게 보호
                     player = { 
-                        ...DEFAULT_DATA, 
-                        ...parsed, 
+                        ...DEFAULT_DATA, ...parsed,
                         resources: { ...DEFAULT_DATA.resources, ...(parsed.resources || {}) },
-                        minions: { ...DEFAULT_DATA.minions, ...(parsed.minions || {}) },
-                        stats: { ...DEFAULT_DATA.stats, ...(parsed.stats || {}) }
+                        materials: { ...DEFAULT_DATA.materials, ...(parsed.materials || {}) },
+                        facilities: { ...DEFAULT_DATA.facilities, ...(parsed.facilities || {}) },
+                        combat: { ...DEFAULT_DATA.combat, ...(parsed.combat || {}) },
+                        equipment: { ...DEFAULT_DATA.equipment, ...(parsed.equipment || {}) }
                     };
-                    Engine.log("데이터를 성공적으로 불러왔습니다.");
-                } else {
-                    Engine.log("새로운 여정을 시작합니다.");
                 }
             },
             wipeData: function() {
-                if(confirm("모든 데이터가 영구적으로 삭제됩니다. 정말 초기화하시겠습니까?")) {
-                    localStorage.removeItem("darkIdleSave");
-                    player = JSON.parse(JSON.stringify(DEFAULT_DATA));
-                    UI.updateAll();
-                    Engine.log("세계가 초기화되었습니다.");
+                if(confirm("세계의 기억이 모두 지워집니다. 정말 처음부터 다시 시작하시겠습니까?")) {
+                    localStorage.removeItem("blacksoulsIdleSave");
+                    location.reload(); // 새로고침으로 강제 초기화
                 }
-            },
-            log: function(msg) {
-                const logBox = document.getElementById('battle-log');
-                if(!logBox) return;
-                const now = new Date();
-                const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-                logBox.innerHTML = `<span style="color:#555;">[${timeStr}]</span> ${msg}<br>` + logBox.innerHTML;
             },
             tick: function() {
-                // 🌟 하수인이 있으면 1초마다 자동으로 영혼 생산!
-                if(player.minions.skeletons > 0) {
-                    player.resources.souls += player.minions.skeletons;
-                    UI.updateResources(); // 자원만 새로고침 (렉 방지)
-                }
+                // (차후 여기에 벌목, 채광, 전투 자동화 로직이 들어갑니다)
                 Engine.save();
             }
         };
 
-        // 3. UI 렌더링
+        /* =========================================================================
+           [3] UI 컨트롤러
+           ========================================================================= */
         const UI = {
-            updateResources: function() {
-                const elSouls = document.getElementById('souls');
-                const elShards = document.getElementById('shards');
-                if(elSouls) elSouls.innerText = player.resources.souls;
-                if(elShards) elShards.innerText = player.resources.shards;
-            },
-            updateHarvest: function() {
-                // 하수인 수와 다음 고용 비용 계산 (1.5배씩 증가)
-                const elCount = document.getElementById('skeleton-count');
-                const elCost = document.getElementById('skeleton-cost');
-                
-                if(elCount) elCount.innerText = player.minions.skeletons;
-                if(elCost) {
-                    const cost = Math.floor(10 * Math.pow(1.5, player.minions.skeletons));
-                    elCost.innerText = cost;
-                }
-            },
-            updateInventory: function() {
-                const invList = document.getElementById('inv-list');
-                if(!invList) return;
-                invList.innerHTML = "";
-                let isEmpty = true;
-
-                for (const itemId in player.inventory) {
-                    const itemData = itemDB.find(i => i.id === itemId);
-                    if (itemData) {
-                        const count = player.inventory[itemId];
-                        invList.innerHTML += `<p><strong style="color:#ff8080;">${itemData.name}</strong> x ${count} <br> <span style="font-size:11px; color:#777;">${itemData.desc}</span></p><hr style="border:0.5px solid #333; margin: 10px 0;">`;
-                        isEmpty = false;
-                    }
-                }
-                if (isEmpty) invList.innerHTML = "가방이 비어있습니다.";
-            },
-            updateAll: function() {
-                this.updateResources();
-                this.updateHarvest();
-                this.updateInventory();
+            updateHUD: function() {
+                document.getElementById('res-soul').innerText = Math.floor(player.resources.soul);
+                document.getElementById('res-blood').innerText = player.resources.blood;
+                document.getElementById('res-madness').innerText = `${player.resources.madness} / 100`;
+                document.getElementById('res-ash').innerText = player.resources.ash;
+                document.getElementById('res-memory').innerText = player.resources.memory;
+                document.getElementById('res-eye').innerText = player.resources.abyssEye;
             },
             switchTab: function(tabId) {
                 document.querySelectorAll('.tab-page').forEach(page => page.classList.remove('active'));
@@ -220,67 +221,15 @@
                 
                 document.getElementById('tab-' + tabId).classList.add('active');
                 event.currentTarget.classList.add('active');
-                
-                if(tabId === 'inventory') this.updateInventory();
-                if(tabId === 'harvest') this.updateHarvest();
             }
         };
 
-        // 4. 플레이어 행동
-        const Action = {
-            killBoss: function() {
-                let dropFound = false;
-                itemDB.forEach(item => {
-                    const roll = Math.random(); 
-                    if (roll <= item.dropRate) {
-                        player.inventory[item.id] = (player.inventory[item.id] || 0) + 1;
-                        dropFound = true;
-                        if(item.dropRate <= 0.001) {
-                            Engine.log(`<span class="epic">🔥 기적! [${item.name}] 획득!! (확률: ${item.dropRate * 100}%)</span>`);
-                        } else {
-                            Engine.log(`<span class="highlight">[${item.name}]</span> 획득.`);
-                        }
-                    }
-                });
-                if (!dropFound) Engine.log("보스를 처치했지만 전리품이 없습니다.");
-                player.stats.totalKills += 1;
-                UI.updateAll();
-            },
-            autoFarm: function(times) {
-                Engine.log(`--- 보스 ${times}회 연속 토벌 시작 ---`);
-                for(let i=0; i<times; i++) {
-                    this.killBoss();
-                }
-            },
-            harvestSoul: function() {
-                player.resources.souls += 1;
-                UI.updateResources();
-            },
-            buySkeleton: function() {
-                const cost = Math.floor(10 * Math.pow(1.5, player.minions.skeletons));
-                if(player.resources.souls >= cost) {
-                    player.resources.souls -= cost;
-                    player.minions.skeletons += 1;
-                    UI.updateAll();
-                } else {
-                    alert("영혼이 부족합니다!");
-                }
-            }
-        };
-
-        // HTML 온클릭 이벤트용 래퍼 함수
         function switchTab(tabId) { UI.switchTab(tabId); }
-        function killBoss() { Action.killBoss(); }
-        function autoFarm(times) { Action.autoFarm(times); }
-        function harvestSoul() { Action.harvestSoul(); }
-        function buySkeleton() { Action.buySkeleton(); }
-        function resetData() { Engine.wipeData(); }
 
-        // 게임 시작
         window.onload = function() {
             Engine.load();    
-            UI.updateAll();   
-            setInterval(function() { Engine.tick(); }, 1000);
+            UI.updateHUD();   
+            setInterval(function() { Engine.tick(); }, 1000); // 1초(1틱) 심장박동
         };
     </script>
 </body>
