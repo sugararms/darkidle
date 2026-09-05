@@ -3,55 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>심연의 성소 (Abyss Sanctuary)</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Malgun Gothic', sans-serif; background-color: #050505; color: #c8c8d0; display: flex; height: 100vh; overflow: hidden; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
-        
-        /* 사이드바 & HUD */
-        #sidebar { width: 220px; background-color: #0a0a0c; padding: 15px 10px; border-right: 1px solid #1a1a20; overflow-y: auto; z-index: 20; }
-        .menu-category { font-size: 11px; color: #555; text-transform: uppercase; margin: 15px 0 5px 10px; font-weight: bold; letter-spacing: 1px; }
-        .tab-btn { background: none; border: none; color: #888; padding: 10px 15px; width: 100%; text-align: left; cursor: pointer; border-radius: 4px; margin-bottom: 2px; transition: 0.2s; }
-        .tab-btn:hover { background-color: #161212; color: #ff5555; }
-        .tab-btn.active { background-color: #240b0b; color: #ff3333; border-left: 3px solid #ff3333; font-weight: bold; }
-        
-        .top-hud { background: #0a0a0c; border-bottom: 1px solid #1a1a20; padding: 15px 25px; display: flex; gap: 25px; flex-wrap: wrap; box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 10; }
-        .res-box { display: flex; flex-direction: column; }
-        .res-name { font-size: 10px; color: #666; margin-bottom: 3px; }
-        .res-value { font-size: 16px; font-weight: bold; }
-        
-        /* 컬러코드 */
-        .c-soul { color: #8bb8d6; } .c-blood { color: #ff2a2a; } .c-madness { color: #b742ff; }
-        .c-ash { color: #aaaaaa; } .c-memory { color: #ffd700; } .c-eye { color: #00ffcc; }
-
-        /* 메인 콘텐츠 및 탭 */
-        #main-container { flex: 1; display: flex; flex-direction: column; background: radial-gradient(circle at center, #111 0%, #050505 100%); }
-        #main-content { flex: 1; padding: 30px; overflow-y: auto; }
-        .tab-page { display: none; animation: fadeIn 0.3s ease; }
-        .tab-page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* 공통 UI 컴포넌트 */
-        h2 { border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 20px; font-size: 22px; color: #eee; }
-        .desc { color: #777; font-size: 13px; margin-bottom: 20px; line-height: 1.5; }
-        .panel { background: rgba(20, 20, 25, 0.8); border: 1px solid #222; padding: 20px; border-radius: 6px; margin-bottom: 15px; }
-        
-        .btn { background-color: #1a1a20; border: 1px solid #333; color: #ccc; padding: 10px 20px; cursor: pointer; font-weight: bold; border-radius: 4px; transition: 0.2s; }
-        .btn:hover:not(:disabled) { background-color: #2a2a35; border-color: #555; color: #fff; }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn-blood { border-color: #551111; color: #ff5555; }
-        .btn-blood:hover:not(:disabled) { background-color: #330b0b; border-color: #ff2a2a; }
-        
-        /* 그리드 시스템 (스탯, 장비, 유물용) */
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .stat-box { background: #111; padding: 10px 12px; border-radius: 4px; border-left: 2px solid #555; }
-        .stat-label { font-size: 11px; color: #888; margin-bottom: 5px; }
-        .stat-val { font-size: 16px; color: #ddd; font-weight: bold; }
-        
-        .slot-box { border: 1px dashed #444; background: #0a0a0c; padding: 15px; text-align: center; border-radius: 4px; color: #666; }
-    </style>
+    <!-- 🎨 디자인 파일 연결 -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="sidebar">
@@ -87,310 +40,65 @@
         </div>
 
         <div id="main-content">
-            
-            <!-- ⚔️ 1. 전투 (현재 껍데기만) -->
-            <div id="tab-combat" class="tab-page">
-                <h2>전투</h2>
-                <p class="desc">전투 시스템은 생태계 구축 완료 후 도입됩니다.</p>
-                <div class="panel" style="height: 300px; font-family: monospace; color:#555;">[시스템] 몬스터 출현 대기 중...</div>
-            </div>
+            <div id="tab-combat" class="tab-page"><h2>전투</h2><p class="desc">전투 시스템은 생태계 구축 완료 후 도입됩니다.</p></div>
 
-            <!-- 🌲 2. 벌목 (생산 생태계) -->
             <div id="tab-lumber" class="tab-page active">
-                <h2>🌲 벌목장</h2>
-                <p class="desc">망령 벌목꾼을 고용해 자동으로 목재를 수집합니다. (1초마다 생산)</p>
+                <h2>🌲 망각의 숲 (벌목장)</h2>
                 <div class="grid-2">
                     <div class="panel">
-                        <h3 style="margin-bottom:15px; color:#aaa;">망령 벌목꾼</h3>
+                        <h3 style="margin-bottom:15px; color:#aaa;">망령 벌목꾼 (초당 1회 채집)</h3>
                         <p>현재 고용 수: <strong id="lumber-count" style="color:#fff; font-size:20px;">0</strong> 명</p><br>
-                        <button class="btn" onclick="Action.hireLumberjack()">고용 (비용: <span id="lumber-cost">10</span> 영혼)</button>
+                        <button class="btn" onclick="Action.hireWorker('lumber')">고용 (비용: <span id="lumber-cost">10</span> 영혼)</button>
+                        <h4 style="margin: 25px 0 10px 0; color:#ddd;">🎯 집중 채집 목표</h4>
+                        <select id="lumber-target" class="target-select" onchange="Action.changeTarget('lumber', this.value)"></select>
                     </div>
                     <div class="panel">
-                        <h3 style="margin-bottom:15px; color:#aaa;">생산품 창고</h3>
-                        <p>썩은 목재: <strong id="mat-wood1">0</strong></p>
-                        <p>검은 수액: <strong id="mat-wood2">0</strong></p>
+                        <h3 style="margin-bottom:15px; color:#aaa;">목재 창고</h3>
+                        <div id="lumber-inventory" class="mat-list"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- ⛏️ 3. 채광 (생산 생태계) -->
             <div id="tab-mining" class="tab-page">
-                <h2>⛏️ 채광장</h2>
-                <p class="desc">광부를 고용해 심연석을 캡니다.</p>
-                <div class="panel"><p>업데이트 준비 중 (벌목과 동일한 구조로 확장 예정)</p></div>
+                <h2>⛏️ 탄식의 광산 (채광장)</h2>
+                <div class="grid-2">
+                    <div class="panel">
+                        <h3 style="margin-bottom:15px; color:#aaa;">노예 광부 (초당 1회 채집)</h3>
+                        <p>현재 고용 수: <strong id="miner-count" style="color:#fff; font-size:20px;">0</strong> 명</p><br>
+                        <button class="btn" onclick="Action.hireWorker('mining')">고용 (비용: <span id="miner-cost">10</span> 영혼)</button>
+                        <h4 style="margin: 25px 0 10px 0; color:#ddd;">🎯 집중 채굴 목표</h4>
+                        <select id="mining-target" class="target-select" onchange="Action.changeTarget('mining', this.value)"></select>
+                    </div>
+                    <div class="panel">
+                        <h3 style="margin-bottom:15px; color:#aaa;">광물 창고</h3>
+                        <div id="mining-inventory" class="mat-list"></div>
+                    </div>
+                </div>
             </div>
 
-            <!-- 🏰 4. 성채 (스탯 확인) -->
             <div id="tab-citadel" class="tab-page">
                 <h2>🏰 성채 (Citadel)</h2>
-                <p class="desc">장비와 광기 패널티가 모두 적용된 최종 스탯입니다.</p>
                 <div class="grid-2">
-                    <div class="panel">
-                        <h3 style="color: #eee; margin-bottom: 10px;">상태 (Status)</h3>
-                        <div class="grid-3">
-                            <div class="stat-box"><div class="stat-label">HP</div><div class="stat-val" id="stat-hp" style="color:#4caf50;">100</div></div>
-                            <div class="stat-box"><div class="stat-label">ATK</div><div class="stat-val" id="stat-atk" style="color:#ff5252;">10</div></div>
-                            <div class="stat-box"><div class="stat-label">DEF</div><div class="stat-val" id="stat-def" style="color:#2196f3;">5</div></div>
-                            <div class="stat-box"><div class="stat-label">SPD</div><div class="stat-val" id="stat-spd" style="color:#00bcd4;">100</div></div>
-                            <div class="stat-box"><div class="stat-label">관통률</div><div class="stat-val" style="color:#ff9800;"><span id="stat-pen">0</span>%</div></div>
-                            <div class="stat-box"><div class="stat-label">회피율</div><div class="stat-val" style="color:#b388ff;"><span id="stat-eva">0</span>%</div></div>
-                        </div>
-                    </div>
-                    <div class="panel">
-                        <h3 style="color: #ff8b3d; margin-bottom: 10px;">🔥 화톳불 (Lv.<span id="hero-level">1</span>)</h3>
-                        <button class="btn" onclick="Action.harvestSoul()">직접 영혼 거두기 (+1)</button><br><br>
-                        <button class="btn btn-blood" onclick="Action.levelUp()">레벨업 (필요: <span id="levelup-cost">10</span>)</button>
-                    </div>
+                    <div class="panel"><h3 style="color:#eee; margin-bottom:10px;">상태</h3><div class="grid-3"><div class="stat-box"><div class="stat-label">HP</div><div class="stat-val" id="stat-hp" style="color:#4caf50;">100</div></div><div class="stat-box"><div class="stat-label">ATK</div><div class="stat-val" id="stat-atk" style="color:#ff5252;">10</div></div><div class="stat-box"><div class="stat-label">DEF</div><div class="stat-val" id="stat-def" style="color:#2196f3;">5</div></div><div class="stat-box"><div class="stat-label">SPD</div><div class="stat-val" id="stat-spd" style="color:#00bcd4;">100</div></div><div class="stat-box"><div class="stat-label">관통률</div><div class="stat-val" style="color:#ff9800;">0%</div></div><div class="stat-box"><div class="stat-label">회피율</div><div class="stat-val" style="color:#b388ff;">0%</div></div></div></div>
+                    <div class="panel"><h3 style="color:#ff8b3d; margin-bottom:10px;">🔥 화톳불 (Lv.<span id="hero-level">1</span>)</h3><button class="btn" onclick="Action.harvestSoul()">직접 영혼 거두기 (+1)</button><br><br><button class="btn btn-blood" onclick="Action.levelUp()">레벨업 (필요: <span id="levelup-cost">10</span>)</button></div>
                 </div>
             </div>
 
-            <!-- 🗡️ 5. 장비 (장착 슬롯 UI) -->
-            <div id="tab-equip" class="tab-page">
-                <h2>🗡️ 장비 세팅</h2>
-                <p class="desc">저주받은 장비를 장착하여 한계를 돌파합니다.</p>
-                <div class="grid-3" style="max-width: 600px;">
-                    <div class="slot-box">무기 (비어있음)</div>
-                    <div class="slot-box">투구 (비어있음)</div>
-                    <div class="slot-box">목걸이 (비어있음)</div>
-                    <div class="slot-box">보조무기 (비어있음)</div>
-                    <div class="slot-box">갑옷 (비어있음)</div>
-                    <div class="slot-box">반지 (비어있음)</div>
-                </div>
-            </div>
-
-            <!-- 👥 6. 동료 -->
-            <div id="tab-companion" class="tab-page"><h2>👥 동료</h2><p class="desc">타락한 자들을 수용할 감옥이 아직 건설되지 않았습니다.</p></div>
-            
-            <!-- 🏺 7. 유물 -->
-            <div id="tab-relic" class="tab-page"><h2>🏺 유물</h2><p class="desc">영구적인 힘을 발휘하는 성유물 제단입니다.</p></div>
-
-            <!-- 👁️ 8. 광기 (하이 리스크 하이 리턴 시스템) -->
-            <div id="tab-madness" class="tab-page">
-                <h2>👁️ 광기 (Madness)</h2>
-                <p class="desc">광기가 오를수록 공격력과 드롭률이 폭증하지만, 최대 체력이 깎이고 회피가 불가능해집니다.</p>
-                <div class="panel">
-                    <h1 style="color:#b742ff; font-size:48px; text-align:center; margin-bottom:20px;">
-                        <span id="madness-display">0</span> / 100
-                    </h1>
-                    <div style="text-align:center; color:#ff5555; margin-bottom:20px;">
-                        <p id="madness-effect-hp">현재 패널티: 최대 체력 -0% 감소</p>
-                        <p id="madness-effect-atk" style="color:#4caf50;">현재 버프: 공격력 +0% 증가</p>
-                    </div>
-                    <div style="display:flex; justify-content:center; gap:10px;">
-                        <button class="btn" onclick="Action.addMadness(10)">[테스트] 광기 +10 주입</button>
-                        <button class="btn" onclick="Action.purifyMadness()">영혼 100 소모하여 정화 (0으로)</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 🩸 9. 의식 (환생 시스템) -->
-            <div id="tab-ritual" class="tab-page">
-                <h2>🩸 피의 의식</h2>
-                <p class="desc">레벨, 영혼, 장비, 자원을 모두 바치고 영구적인 성장을 이룩합니다.</p>
-                <div class="panel" style="border-color:#ff2a2a; background:rgba(40,10,10,0.8);">
-                    <h3 style="color:#ff2a2a; margin-bottom:15px;">의식 진행 시 획득 보상</h3>
-                    <p style="font-size:24px; margin-bottom:20px;">획득 예정 <span class="c-ash">재(Ash)</span>: <strong id="ritual-ash-gain" style="color:#fff;">0</strong> 개</p>
-                    <ul style="color:#aaa; font-size:12px; margin-bottom:20px; padding-left:20px;">
-                        <li>유물, 기억, 심연의 눈, 재는 보존됩니다.</li>
-                        <li>그 외의 모든 레벨과 자원은 0으로 초기화됩니다.</li>
-                    </ul>
-                    <button class="btn btn-blood" onclick="Action.performRitual()" style="width:100%; padding:15px; font-size:16px;">모든 것을 바치고 의식 거행</button>
-                </div>
-            </div>
-
-            <!-- 📜 10. 기억 & 📖 11. 도감 & ⚙️ 12. 설정 -->
-            <div id="tab-memory" class="tab-page"><h2>📜 기억</h2><p class="desc">아직 발견된 진실이 없습니다.</p></div>
-            <div id="tab-codex" class="tab-page"><h2>📖 도감</h2><p class="desc">발견한 이형의 존재들이 기록됩니다.</p></div>
-            <div id="tab-settings" class="tab-page">
-                <h2>⚙️ 시스템 설정</h2>
-                <button class="btn btn-blood" onclick="Engine.wipeData()">세이브 완전 삭제 (하드 리셋)</button>
-            </div>
+            <div id="tab-equip" class="tab-page"><h2>🗡️ 장비 세팅</h2><p class="desc">업데이트 예정</p></div>
+            <div id="tab-companion" class="tab-page"><h2>👥 동료</h2><p class="desc">업데이트 예정</p></div>
+            <div id="tab-relic" class="tab-page"><h2>🏺 유물</h2><p class="desc">업데이트 예정</p></div>
+            <div id="tab-madness" class="tab-page"><h2>👁️ 광기</h2><p class="desc">업데이트 예정</p></div>
+            <div id="tab-ritual" class="tab-page"><h2>🩸 피의 의식</h2><p class="desc">업데이트 예정</p></div>
+            <div id="tab-memory" class="tab-page"><h2>📜 기억</h2><p class="desc">업데이트 예정</p></div>
+            <div id="tab-codex" class="tab-page"><h2>📖 도감</h2><p class="desc">업데이트 예정</p></div>
+            <div id="tab-settings" class="tab-page"><h2>⚙️ 시스템 설정</h2><button class="btn btn-blood" onclick="Engine.wipeData()">세이브 완전 삭제 (하드 리셋)</button></div>
         </div>
     </div>
 
-   <script>
-        /* =========================================================================
-           [1] 마스터 데이터베이스 (완전판)
-           ========================================================================= */
-        const DEFAULT_DATA = {
-            version: "1.3",
-            resources: { soul: 0, blood: 0, madness: 0, ash: 0, memory: 0, abyssEye: 0 },
-            hero: { level: 1, baseHp: 100, baseAtk: 10, baseDef: 5, baseSpeed: 100, baseCritRate: 5, baseCritDmg: 150, basePenetration: 0, baseEvasion: 0 },
-            materials: { woodRotten: 0, woodDarkSap: 0 }, 
-            facilities: { lumberjacks: 0 }, 
-            equipment: {}, companions: {}, relics: {},
-            lastSaveTime: Date.now()
-        };
-
-        let player = JSON.parse(JSON.stringify(DEFAULT_DATA));
-
-        /* =========================================================================
-           [2] 스탯 시너지 계산기 엔진
-           ========================================================================= */
-        const StatCalc = {
-            getHP: function() { 
-                let multiplier = 1 - (player.resources.madness * 0.005);
-                return Math.floor(player.hero.baseHp * multiplier); 
-            },
-            getATK: function() { 
-                let madnessBuff = 1 + (player.resources.madness * 0.01);
-                let ashBuff = 1 + (player.resources.ash * 0.05);
-                return Math.floor(player.hero.baseAtk * madnessBuff * ashBuff); 
-            },
-            getDEF: function() { return Math.floor(player.hero.baseDef); },
-            getSPD: function() { return player.hero.baseSpeed + (player.resources.ash * 1); }, 
-            getPEN: function() { return player.hero.basePenetration; },
-            getEVA: function() { return player.resources.madness >= 50 ? 0 : player.hero.baseEvasion; },
-            getLevelUpCost: function() { return Math.floor(10 * Math.pow(1.15, player.hero.level - 1)); },
-            getLumberCost: function() { return Math.floor(10 * Math.pow(1.5, player.facilities.lumberjacks)); },
-            getPendingAsh: function() {
-                let fromLevel = Math.floor(player.hero.level / 5);
-                let fromSoul = Math.floor(player.resources.soul / 1000);
-                return fromLevel + fromSoul;
-            }
-        };
-
-        /* =========================================================================
-           [3] 플레이어 액션 컨트롤러
-           ========================================================================= */
-        const Action = {
-            harvestSoul: function() { player.resources.soul += 1; UI.updateAll(); },
-            levelUp: function() {
-                const cost = StatCalc.getLevelUpCost();
-                if (player.resources.soul >= cost) {
-                    player.resources.soul -= cost;
-                    player.hero.level++; player.hero.baseHp += 15; player.hero.baseAtk += 3; player.hero.baseDef += 1;
-                    UI.updateAll();
-                } else alert("영혼이 부족합니다.");
-            },
-            hireLumberjack: function() {
-                const cost = StatCalc.getLumberCost();
-                if (player.resources.soul >= cost) {
-                    player.resources.soul -= cost;
-                    player.facilities.lumberjacks++;
-                    UI.updateAll();
-                } else alert("영혼이 부족합니다.");
-            },
-            addMadness: function(amount) {
-                player.resources.madness = Math.min(100, player.resources.madness + amount);
-                UI.updateAll();
-            },
-            purifyMadness: function() {
-                if(player.resources.soul >= 100) {
-                    player.resources.soul -= 100;
-                    player.resources.madness = 0;
-                    UI.updateAll();
-                } else alert("정화에 필요한 영혼(100)이 부족합니다.");
-            },
-            performRitual: function() {
-                let pendingAsh = StatCalc.getPendingAsh();
-                if(pendingAsh <= 0) {
-                    alert("아직 의식을 치르기엔 이룹니다. (최소 레벨 5 필요)"); return;
-                }
-                if(confirm(`모든 것을 불태우고 ${pendingAsh}개의 재를 얻으시겠습니까?`)) {
-                    let savedAsh = player.resources.ash + pendingAsh;
-                    let savedEye = player.resources.abyssEye;
-                    let savedMemory = player.resources.memory;
-                    let savedRelics = player.relics;
-                    
-                    player = JSON.parse(JSON.stringify(DEFAULT_DATA));
-                    player.resources.ash = savedAsh;
-                    player.resources.abyssEye = savedEye;
-                    player.resources.memory = savedMemory;
-                    player.relics = savedRelics;
-                    
-                    UI.updateAll();
-                    alert("세계가 재로 덮였습니다. 새로운 생을 시작합니다.");
-                }
-            }
-        };
-
-        /* =========================================================================
-           [4] 시스템 엔진 & UI 렌더링
-           ========================================================================= */
-        const Engine = {
-            save: function() { player.lastSaveTime = Date.now(); localStorage.setItem("blacksoulsIdleSave", JSON.stringify(player)); },
-            load: function() {
-                const saved = localStorage.getItem("blacksoulsIdleSave");
-                if (saved) {
-                    const p = JSON.parse(saved);
-                    player = { ...DEFAULT_DATA, ...p, resources: { ...DEFAULT_DATA.resources, ...(p.resources||{}) }, hero: { ...DEFAULT_DATA.hero, ...(p.hero||{}) }, materials: { ...DEFAULT_DATA.materials, ...(p.materials||{}) }, facilities: { ...DEFAULT_DATA.facilities, ...(p.facilities||{}) } };
-                }
-            },
-            wipeData: function() { if(confirm("완전 삭제하시겠습니까?")) { localStorage.removeItem("blacksoulsIdleSave"); location.reload(); } },
-            tick: function() {
-                if(player.facilities.lumberjacks > 0) {
-                    player.materials.woodRotten += player.facilities.lumberjacks;
-                    if(Math.random() < 0.05) player.materials.woodDarkSap += 1; 
-                    UI.updateTabLumber(); 
-                }
-                Engine.save();
-            }
-        };
-
-        const UI = {
-            updateHUD: function() {
-                document.getElementById('res-soul').innerText = Math.floor(player.resources.soul);
-                document.getElementById('res-blood').innerText = player.resources.blood;
-                document.getElementById('res-madness').innerText = `${player.resources.madness} / 100`;
-                document.getElementById('res-ash').innerText = player.resources.ash;
-                document.getElementById('res-memory').innerText = player.resources.memory;
-                document.getElementById('res-eye').innerText = player.resources.abyssEye;
-            },
-            updateTabCitadel: function() {
-                if(!document.getElementById('hero-level')) return;
-                document.getElementById('hero-level').innerText = player.hero.level;
-                document.getElementById('levelup-cost').innerText = StatCalc.getLevelUpCost();
-                document.getElementById('stat-hp').innerText = StatCalc.getHP();
-                document.getElementById('stat-atk').innerText = StatCalc.getATK();
-                document.getElementById('stat-def').innerText = StatCalc.getDEF();
-                document.getElementById('stat-spd').innerText = StatCalc.getSPD();
-            },
-            updateTabLumber: function() {
-                if(!document.getElementById('lumber-count')) return;
-                document.getElementById('lumber-count').innerText = player.facilities.lumberjacks;
-                document.getElementById('lumber-cost').innerText = StatCalc.getLumberCost();
-                document.getElementById('mat-wood1').innerText = player.materials.woodRotten;
-                document.getElementById('mat-wood2').innerText = player.materials.woodDarkSap;
-            },
-            updateTabMadness: function() {
-                if(!document.getElementById('madness-display')) return;
-                document.getElementById('madness-display').innerText = player.resources.madness;
-                document.getElementById('madness-effect-hp').innerText = `현재 패널티: 최대 체력 -${player.resources.madness * 0.5}% 감소`;
-                document.getElementById('madness-effect-atk').innerText = `현재 버프: 공격력 +${player.resources.madness}% 증가`;
-            },
-            updateTabRitual: function() {
-                if(!document.getElementById('ritual-ash-gain')) return;
-                document.getElementById('ritual-ash-gain').innerText = StatCalc.getPendingAsh();
-            },
-            updateAll: function() {
-                this.updateHUD(); this.updateTabCitadel(); this.updateTabLumber(); this.updateTabMadness(); this.updateTabRitual();
-            },
-            switchTab: function(tabId) {
-                // 기존 활성화 상태 초기화
-                document.querySelectorAll('.tab-page').forEach(page => page.classList.remove('active'));
-                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-                
-                // 선택한 탭 열기
-                document.getElementById('tab-' + tabId).classList.add('active');
-                
-                // 안전한 방식으로 좌측 메뉴 버튼에 빨간불 들어오게 만들기
-                document.querySelectorAll('.tab-btn').forEach(btn => {
-                    if(btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(tabId)) {
-                        btn.classList.add('active');
-                    }
-                });
-                
-                this.updateAll();
-            }
-        };
-
-        // 🚨 이 줄이 실수로 빠졌던 범인입니다! HTML 버튼들과 자바스크립트를 연결해줍니다.
-        function switchTab(tabId) { UI.switchTab(tabId); }
-
-        window.onload = function() {
-            Engine.load(); UI.updateAll(); setInterval(function() { Engine.tick(); }, 1000);
-        };
-    </script>
+    <!-- 🧠 시스템 파일 연결 (순서가 매우 중요합니다!) -->
+    <script src="data.js"></script>
+    <script src="engine.js"></script>
+    <script src="ui.js"></script>
+    <script src="action.js"></script>
 </body>
 </html>
