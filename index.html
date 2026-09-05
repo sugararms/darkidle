@@ -1,110 +1,190 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <title>심연의 성소 (Abyss Sanctuary)</title>
-    <style>
-        /* 기본 디자인은 그대로 유지 */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Malgun Gothic', sans-serif; background-color: #0d0d0f; color: #d1d1d6; display: flex; height: 100vh; }
-        #sidebar { width: 220px; background-color: #121214; padding: 15px; border-right: 1px solid #222; }
-        .tab-btn { background: none; border: none; color: #999; padding: 10px; width: 100%; text-align: left; cursor: pointer; margin-bottom: 5px; }
-        .tab-btn:hover, .tab-btn.active { background-color: #2a0b0b; color: #ff4d4d; }
-        #main-content { flex: 1; padding: 30px; overflow-y: auto; }
-        .tab-page { display: none; }
-        .tab-page.active { display: block; }
-        .action-btn { background-color: #240b0b; border: 1px solid #ff4d4d; color: #ff9999; padding: 10px 15px; cursor: pointer; font-weight: bold; }
-        .log-box { background-color: #111; border: 1px solid #333; padding: 15px; height: 200px; overflow-y: auto; margin-top: 20px; font-size: 13px; color: #aaa; }
-        .highlight { color: #ffeb3b; font-weight: bold; }
-        .epic { color: #ff1744; font-weight: bold; text-shadow: 0 0 5px red; }
-    </style>
-</head>
-<body>
-    <div id="sidebar">
-        <button class="tab-btn active" onclick="switchTab('battle')">⚔️ 보스 토벌</button>
-        <button class="tab-btn" onclick="switchTab('inventory')">🎒 인벤토리</button>
-    </div>
-
-    <div id="main-content">
-        <!-- 토벌 탭 -->
-        <div id="tab-battle" class="tab-page active">
-            <h2>심연의 보스 토벌</h2>
-            <p>버튼을 누를 때마다 보스를 처치하고 정해진 확률(0.01% ~ 50%)로 전리품을 얻습니다.</p><br>
-            <button class="action-btn" onclick="killBoss()">보스 1회 처치</button>
-            <button class="action-btn" onclick="autoFarm(100)">보스 100회 연속 처치 (자동)</button>
-            
-            <div id="battle-log" class="log-box"></div>
-        </div>
-
-        <!-- 인벤토리 탭 -->
-        <div id="tab-inventory" class="tab-page">
-            <h2>내 가방</h2>
-            <div id="inv-list" class="log-box">아직 얻은 아이템이 없습니다.</div>
-        </div>
-    </div>
-
-    <!-- 🌟 여기서 아까 만든 아이템 창고 파일을 불러옵니다! -->
+<!-- 🌟 아이템 창고 파일 불러오기 (이름 items.js 오타 주의!) -->
     <script src="items.js"></script>
 
     <script>
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-page').forEach(page => page.classList.remove('active'));
-            document.getElementById('tab-' + tabId).classList.add('active');
-            if(tabId === 'inventory') renderInventory();
-        }
+        /* =========================================================================
+           [1] 데이터 구조 (Data Structure)
+           ========================================================================= */
+        
+        // 1-1. 게임의 기본 데이터 (처음 시작하거나 초기화할 때 쓰이는 원본)
+        const DEFAULT_DATA = {
+            version: "0.1",
+            resources: {
+                souls: 0,
+                shards: 0
+            },
+            stats: {
+                totalKills: 0
+            },
+            inventory: {}, // 획득한 아이템 저장소
+            lastSaveTime: Date.now() // 오프라인 보상 계산을 위한 마지막 접속 시간
+        };
 
-        function logMessage(msg) {
-            const logBox = document.getElementById('battle-log');
-            logBox.innerHTML = msg + "<br>" + logBox.innerHTML;
-        }
+        // 1-2. 현재 플레이어의 장부 (초기엔 원본 데이터를 복사해서 사용)
+        let player = JSON.parse(JSON.stringify(DEFAULT_DATA));
 
-        // 몬스터 처치 시 전리품 굴리기 로직
-        function killBoss() {
-            let dropFound = false;
 
-            // itemDB(수천 개의 아이템 목록)를 하나씩 돌면서 확률 계산
-            itemDB.forEach(item => {
-                const roll = Math.random(); // 0.000000 ~ 0.999999 사이의 랜덤 숫자 뽑기
+        /* =========================================================================
+           [2] 게임 엔진 (Game Engine) - 계산, 저장, 시스템 통제
+           ========================================================================= */
+        const Engine = {
+            // 게임 저장 (1초마다 자동 실행됨)
+            save: function() {
+                player.lastSaveTime = Date.now();
+                // 브라우저 캐시에 'darkIdleSave'라는 이름으로 장부 전체를 문자열로 압축해 저장
+                localStorage.setItem("darkIdleSave", JSON.stringify(player)); 
+            },
+
+            // 게임 불러오기
+            load: function() {
+                const savedData = localStorage.getItem("darkIdleSave");
+                if (savedData) {
+                    const parsed = JSON.parse(savedData);
+                    // 🚨 핵심 방어 로직: 업데이트로 새 데이터가 생겨도 에러 안 나게 원본과 병합
+                    player = { ...DEFAULT_DATA, ...parsed, resources: { ...DEFAULT_DATA.resources, ...parsed.resources } };
+                    Engine.log("데이터를 성공적으로 불러왔습니다.");
+                } else {
+                    Engine.log("새로운 여정을 시작합니다.");
+                }
+            },
+
+            // 데이터 초기화 (하드 리셋용)
+            wipeData: function() {
+                if(confirm("모든 데이터가 영구적으로 삭제됩니다. 정말 초기화하시겠습니까?")) {
+                    localStorage.removeItem("darkIdleSave");
+                    player = JSON.parse(JSON.stringify(DEFAULT_DATA));
+                    UI.updateAll();
+                    Engine.log("세계가 초기화되었습니다.");
+                }
+            },
+
+            // 전투/이벤트 로그 출력
+            log: function(msg) {
+                const logBox = document.getElementById('battle-log');
+                if(!logBox) return;
                 
-                if (roll <= item.dropRate) {
-                    // 당첨! 인벤토리에 아이템 추가
-                    inventory[item.id] = (inventory[item.id] || 0) + 1;
-                    dropFound = true;
-                    
-                    if(item.dropRate <= 0.001) {
-                        logMessage(`<span class="epic">🔥 미쳤습니다!! 극악의 확률을 뚫고 [${item.name}] 획득!! (확률: ${item.dropRate * 100}%)</span>`);
-                    } else {
-                        logMessage(`<span class="highlight">[${item.name}]</span> 획득.`);
+                // 시간이 포함된 세련된 로그
+                const now = new Date();
+                const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+                
+                logBox.innerHTML = `<span style="color:#555;">[${timeStr}]</span> ${msg}<br>` + logBox.innerHTML;
+            },
+
+            // 게임의 심장 (1초마다 무조건 1번씩 실행되는 메인 루프)
+            tick: function() {
+                Engine.save(); // 자동 저장
+                // (나중에 여기에 '일꾼이 1초마다 영혼 캐기' 같은 로직이 들어갑니다.)
+            }
+        };
+
+
+        /* =========================================================================
+           [3] UI 컨트롤러 (UI Controller) - 화면 렌더링 전담
+           ========================================================================= */
+        const UI = {
+            // 자원 화면 업데이트
+            updateResources: function() {
+                const elSouls = document.getElementById('souls');
+                const elShards = document.getElementById('shards');
+                
+                if(elSouls) elSouls.innerText = player.resources.souls;
+                if(elShards) elShards.innerText = player.resources.shards;
+            },
+
+            // 인벤토리 화면 업데이트
+            updateInventory: function() {
+                const invList = document.getElementById('inv-list');
+                if(!invList) return;
+
+                invList.innerHTML = "";
+                let isEmpty = true;
+
+                for (const itemId in player.inventory) {
+                    const itemData = itemDB.find(i => i.id === itemId);
+                    if (itemData) {
+                        const count = player.inventory[itemId];
+                        invList.innerHTML += `<p><strong style="color:#ff8080;">${itemData.name}</strong> x ${count} <br> <span style="font-size:11px; color:#777;">${itemData.desc}</span></p><hr style="border:0.5px solid #333; margin: 10px 0;">`;
+                        isEmpty = false;
                     }
                 }
-            });
+                if (isEmpty) invList.innerHTML = "가방이 비어있습니다.";
+            },
 
-            if (!dropFound) logMessage("보스를 처치했지만 아무것도 얻지 못했습니다...");
-        }
+            // 모든 화면 갱신
+            updateAll: function() {
+                this.updateResources();
+                this.updateInventory();
+            },
 
-        // 극악 확률 테스트용 연속 처치
-        function autoFarm(times) {
-            logMessage(`--- 보스 ${times}회 연속 토벌 시작 ---`);
-            for(let i=0; i<times; i++) {
-                killBoss();
+            // 탭 전환 기능
+            switchTab: function(tabId) {
+                document.querySelectorAll('.tab-page').forEach(page => page.classList.remove('active'));
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                
+                document.getElementById('tab-' + tabId).classList.add('active');
+                event.currentTarget.classList.add('active');
+                
+                if(tabId === 'inventory') this.updateInventory();
             }
-        }
+        };
 
-        // 인벤토리 화면 업데이트
-        function renderInventory() {
-            const invList = document.getElementById('inv-list');
-            invList.innerHTML = "";
-            let isEmpty = true;
 
-            for (const itemId in inventory) {
-                const itemData = itemDB.find(i => i.id === itemId);
-                const count = inventory[itemId];
-                invList.innerHTML += `<p><strong style="color:#ff8080;">${itemData.name}</strong> x ${count} <br> <span style="font-size:11px; color:#777;">${itemData.desc}</span></p><hr style="border:0.5px solid #333; margin: 10px 0;">`;
-                isEmpty = false;
+        /* =========================================================================
+           [4] 플레이어 액션 (Player Actions) - 버튼을 눌렀을 때의 동작
+           ========================================================================= */
+        const Action = {
+            killBoss: function() {
+                let dropFound = false;
+
+                // itemDB 참조 (items.js 파일에 존재해야 함)
+                itemDB.forEach(item => {
+                    const roll = Math.random(); 
+                    if (roll <= item.dropRate) {
+                        // 플레이어 장부(inventory)에 저장
+                        player.inventory[item.id] = (player.inventory[item.id] || 0) + 1;
+                        dropFound = true;
+                        
+                        if(item.dropRate <= 0.001) {
+                            Engine.log(`<span class="epic">🔥 기적! [${item.name}] 획득!! (확률: ${item.dropRate * 100}%)</span>`);
+                        } else {
+                            Engine.log(`<span class="highlight">[${item.name}]</span> 획득.`);
+                        }
+                    }
+                });
+
+                if (!dropFound) Engine.log("보스를 처치했지만 전리품이 없습니다.");
+                
+                player.stats.totalKills += 1;
+                player.resources.souls += 10; // 보스 처치 시 기본 영혼 +10
+                
+                UI.updateAll();
+            },
+
+            autoFarm: function(times) {
+                Engine.log(`--- 보스 ${times}회 연속 토벌 시작 ---`);
+                for(let i=0; i<times; i++) {
+                    this.killBoss();
+                }
             }
+        };
 
-            if (isEmpty) invList.innerHTML = "가방이 비어있습니다.";
-        }
+        // 구 버전 HTML 버튼들과 Action 객체를 연결해주기 위한 전역 함수
+        function switchTab(tabId) { UI.switchTab(tabId); }
+        function killBoss() { Action.killBoss(); }
+        function autoFarm(times) { Action.autoFarm(times); }
+        function resetData() { Engine.wipeData(); }
+
+
+        /* =========================================================================
+           [5] 시스템 초기화 (System Init) - 웹페이지가 켜질 때 단 1번 실행
+           ========================================================================= */
+        window.onload = function() {
+            Engine.load();    // 1. 금고에서 데이터 꺼내오기
+            UI.updateAll();   // 2. 꺼내온 데이터를 화면에 렌더링하기
+            
+            // 3. 1초(1000ms)마다 메인 엔진 가동
+            setInterval(function() {
+                Engine.tick();
+            }, 1000);
+        };
     </script>
-</body>
-</html>
