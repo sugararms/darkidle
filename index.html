@@ -42,11 +42,11 @@
         .btn-blood { border-color: #551111; color: #ff5555; }
         .btn-blood:hover { background-color: #330b0b; border-color: #ff2a2a; }
         
-        /* 스탯 그리드 디자인 */
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
-        .stat-box { background: #111; padding: 10px 15px; border-radius: 4px; border-left: 2px solid #555; }
+        /* 스탯 그리드 확장 (3열로 배치하여 한눈에 보이게) */
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .stat-box { background: #111; padding: 10px 12px; border-radius: 4px; border-left: 2px solid #555; }
         .stat-label { font-size: 11px; color: #888; margin-bottom: 5px; }
-        .stat-val { font-size: 18px; color: #ddd; font-weight: bold; }
+        .stat-val { font-size: 16px; color: #ddd; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -57,7 +57,6 @@
         <button class="tab-btn" onclick="switchTab('mining')">⛏️ 채광</button>
         
         <div class="menu-category">성장 (Growth)</div>
-        <!-- 시작하자마자 성채 탭이 보이도록 active 설정 -->
         <button class="tab-btn active" onclick="switchTab('citadel')">🏰 성채 (기지)</button>
         <button class="tab-btn" onclick="switchTab('equip')">🗡️ 장비</button>
         <button class="tab-btn" onclick="switchTab('companion')">👥 동료</button>
@@ -84,36 +83,19 @@
         </div>
 
         <div id="main-content">
-            
-            <!-- 🌟 탭: 성채 (주인공 스탯 및 성장) -->
+            <!-- 🌟 탭: 성채 (심화 스탯 적용) -->
             <div id="tab-citadel" class="tab-page active">
                 <h2>🏰 성채 (Citadel)</h2>
-                <p class="desc">버려진 성채의 화톳불 앞에서 육체를 강화하고 상태를 점검합니다.</p>
+                <p class="desc">장비와 유물이 모두 적용된 최종 전투 능력치입니다.</p>
                 
-                <div style="display: flex; gap: 20px;">
-                    <!-- 좌측: 화톳불 (레벨업) -->
-                    <div class="panel" style="flex: 1;">
-                        <h3 style="color: #ff8b3d; margin-bottom: 10px;">🔥 화톳불</h3>
-                        <p style="color: #aaa; font-size: 13px; margin-bottom: 20px;">영혼을 태워 레벨을 올립니다. 레벨이 오를수록 기본 능력치가 상승합니다.</p>
-                        
-                        <div style="margin-bottom: 20px;">
-                            <span style="font-size: 14px; color: #888;">현재 레벨</span><br>
-                            <span style="font-size: 32px; font-weight: bold; color: #fff;">Lv. <span id="hero-level">1</span></span>
-                        </div>
-                        
-                        <!-- 테스트를 위해 수동으로 영혼을 캐는 버튼 임시 배치 -->
-                        <button class="btn" onclick="Action.harvestSoul()" style="margin-bottom: 10px; width: 100%;">직접 영혼 거두기 (+1)</button><br>
-                        <button class="btn btn-blood" id="btn-levelup" onclick="Action.levelUp()" style="width: 100%; padding: 15px;">
-                            레벨업 (필요 영혼: <span id="levelup-cost">10</span>)
-                        </button>
-                    </div>
-
-                    <!-- 우측: 종합 스탯 창 -->
-                    <div class="panel" style="flex: 1.5;">
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    
+                    <!-- 종합 스탯 창 (3열 배치) -->
+                    <div class="panel">
                         <h3 style="color: #eee; margin-bottom: 10px;">상태 (Status)</h3>
-                        <p style="color: #888; font-size: 12px;">장비와 유물, 광기 디버프가 모두 적용된 최종 능력치입니다.</p>
                         
                         <div class="stat-grid">
+                            <!-- 1열: 기본 스탯 -->
                             <div class="stat-box">
                                 <div class="stat-label">최대 체력 (HP)</div>
                                 <div class="stat-val" id="stat-hp" style="color: #4caf50;">100</div>
@@ -126,18 +108,54 @@
                                 <div class="stat-label">방어력 (DEF)</div>
                                 <div class="stat-val" id="stat-def" style="color: #2196f3;">5</div>
                             </div>
+
+                            <!-- 2열: 속도 및 공격 보조 -->
                             <div class="stat-box">
-                                <div class="stat-label">치명타 확률 / 배율</div>
-                                <div class="stat-val" style="color: #ffeb3b;">
-                                    <span id="stat-crit-rate">5</span>% / <span id="stat-crit-dmg">150</span>%
-                                </div>
+                                <div class="stat-label">속도 (SPD)</div>
+                                <div class="stat-val" id="stat-spd" style="color: #00bcd4;">100</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">방어 관통률</div>
+                                <div class="stat-val" style="color: #ff9800;"><span id="stat-pen">0</span>%</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">치명 확률 / 배율</div>
+                                <div class="stat-val" style="color: #ffeb3b;"><span id="stat-crit-rate">5</span>% / <span id="stat-crit-dmg">150</span>%</div>
+                            </div>
+
+                            <!-- 3열: 생존 및 디버프 -->
+                            <div class="stat-box">
+                                <div class="stat-label">회피율 (EVA)</div>
+                                <div class="stat-val" style="color: #b388ff;"><span id="stat-eva">0</span>%</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">디버프 적중률</div>
+                                <div class="stat-val" style="color: #a1887f;"><span id="stat-acc">0</span>%</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">디버프 저항률</div>
+                                <div class="stat-val" style="color: #a1887f;"><span id="stat-res">0</span>%</div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- 화톳불 (레벨업) -->
+                    <div class="panel" style="max-width: 400px;">
+                        <h3 style="color: #ff8b3d; margin-bottom: 10px;">🔥 화톳불 (Lv. <span id="hero-level">1</span>)</h3>
+                        <p style="color: #aaa; font-size: 13px; margin-bottom: 20px;">영혼을 태워 체력, 공격력, 방어력을 올립니다.</p>
+                        
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn" onclick="Action.harvestSoul()" style="flex: 1;">직접 영혼 거두기 (+1)</button>
+                            <button class="btn btn-blood" id="btn-levelup" onclick="Action.levelUp()" style="flex: 2;">
+                                레벨업 (필요: <span id="levelup-cost">10</span>)
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
-            <!-- 다른 탭들은 이전과 동일 (코드 생략 방지를 위해 껍데기 유지) -->
+            <!-- 미구현 탭 (껍데기) -->
             <div id="tab-combat" class="tab-page"><h2>전투</h2><p class="desc">업데이트 예정</p></div>
             <div id="tab-lumber" class="tab-page"><h2>벌목</h2><p class="desc">업데이트 예정</p></div>
             <div id="tab-mining" class="tab-page"><h2>채광</h2><p class="desc">업데이트 예정</p></div>
@@ -156,19 +174,23 @@
 
     <script>
         /* =========================================================================
-           [1] 마스터 데이터 (주인공 hero 스탯 추가)
+           [1] 마스터 데이터 (심화 스탯 확장)
            ========================================================================= */
         const DEFAULT_DATA = {
-            version: "1.1",
+            version: "1.2",
             resources: { soul: 0, blood: 0, madness: 0, ash: 0, memory: 0, abyssEye: 0 },
-            // 🌟 주인공의 순수 기본 스탯 (아무것도 안 입었을 때의 알몸 능력치)
             hero: {
                 level: 1,
                 baseHp: 100,
                 baseAtk: 10,
                 baseDef: 5,
-                baseCritRate: 5,  // 5%
-                baseCritDmg: 150  // 150% 배율
+                baseSpeed: 100,        // 턴 게이지 차오르는 속도
+                baseCritRate: 5,       // 5%
+                baseCritDmg: 150,      // 150%
+                basePenetration: 0,    // 방어 관통률
+                baseEvasion: 0,        // 회피율
+                baseAccuracy: 0,       // 디버프 적중률
+                baseResistance: 0      // 디버프 저항률
             },
             materials: {}, facilities: {}, combat: {}, equipment: {}, companions: {}, relics: {},
             lastSaveTime: Date.now()
@@ -177,25 +199,19 @@
         let player = JSON.parse(JSON.stringify(DEFAULT_DATA));
 
         /* =========================================================================
-           [2] 스탯 계산기 엔진 (이 게임의 핵심 수학 공식)
+           [2] 스탯 계산기 엔진 (장비/유물 연산용)
            ========================================================================= */
         const StatCalc = {
-            // 장비나 유물, 광기 패널티가 생기면 이곳의 공식에 자동 합산됩니다.
-            getHP: function() {
-                let hp = player.hero.baseHp;
-                // 예: if(player.resources.madness >= 50) hp *= 0.8; (광기 패널티)
-                return Math.floor(hp);
-            },
-            getATK: function() {
-                let atk = player.hero.baseAtk;
-                // 예: atk += player.equipment.weapon.atk; (무기 공격력 합산)
-                return Math.floor(atk);
-            },
-            getDEF: function() {
-                return player.hero.baseDef;
-            },
+            getHP: function() { return Math.floor(player.hero.baseHp); },
+            getATK: function() { return Math.floor(player.hero.baseAtk); },
+            getDEF: function() { return Math.floor(player.hero.baseDef); },
+            getSPD: function() { return player.hero.baseSpeed; }, // 향후 '날개 달린 부츠' 장착 시 +20 되도록 이곳에 코딩
+            getPEN: function() { return player.hero.basePenetration; },
+            getEVA: function() { return player.hero.baseEvasion; },
+            getACC: function() { return player.hero.baseAccuracy; },
+            getRES: function() { return player.hero.baseResistance; },
+            
             getLevelUpCost: function() {
-                // 요구 경험치 곡선: 10 * (1.15 ^ (현재레벨-1))
                 return Math.floor(10 * Math.pow(1.15, player.hero.level - 1));
             }
         };
@@ -213,15 +229,15 @@
                 if (player.resources.soul >= cost) {
                     player.resources.soul -= cost;
                     
-                    // 레벨업 스탯 상승폭
                     player.hero.level += 1;
                     player.hero.baseHp += 15;
                     player.hero.baseAtk += 3;
                     player.hero.baseDef += 1;
+                    // 속도나 회피율 등은 레벨업으로 오르지 않고 장비로 올리는 컨셉
                     
                     UI.updateAll();
                 } else {
-                    alert("영혼이 부족하여 화톳불을 지필 수 없습니다.");
+                    alert("영혼이 부족합니다.");
                 }
             }
         };
@@ -264,17 +280,23 @@
                 document.getElementById('res-ash').innerText = player.resources.ash;
             },
             updateCitadel: function() {
-                // 성채(스탯창) 수치 갱신
                 const elLevel = document.getElementById('hero-level');
-                if(!elLevel) return; // 현재 탭이 렌더링되지 않았으면 패스
+                if(!elLevel) return; 
                 
                 elLevel.innerText = player.hero.level;
                 document.getElementById('levelup-cost').innerText = StatCalc.getLevelUpCost();
                 
-                // 스탯 계산기를 거친 최종 스탯을 화면에 표시
+                // 화면의 ID와 계산기를 매칭
                 document.getElementById('stat-hp').innerText = StatCalc.getHP();
                 document.getElementById('stat-atk').innerText = StatCalc.getATK();
                 document.getElementById('stat-def').innerText = StatCalc.getDEF();
+                
+                document.getElementById('stat-spd').innerText = StatCalc.getSPD();
+                document.getElementById('stat-pen').innerText = StatCalc.getPEN();
+                document.getElementById('stat-eva').innerText = StatCalc.getEVA();
+                document.getElementById('stat-acc').innerText = StatCalc.getACC();
+                document.getElementById('stat-res').innerText = StatCalc.getRES();
+                
                 document.getElementById('stat-crit-rate').innerText = player.hero.baseCritRate;
                 document.getElementById('stat-crit-dmg').innerText = player.hero.baseCritDmg;
             },
